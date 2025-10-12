@@ -1,0 +1,24 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Product Name</th>
+      <th scope="col">Unit Price</th>
+      <th scope="col">Unit in stock</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let product of products; let i = index">
+      <td>
+        <img src="{{product.imageUrl}}"/>
+      </td>
+      <td>{{ product.name }}</td>
+      <td>{{ product.unitPrice | currency:'USD' }}</td>
+      <td>{{ product.unitsInStock}}</td>
+    </tr>
+  </tbody>
+</table>
+<!-- <p *ngFor="let product of products">
+        {{ product.name }} - {{ product.unitPrice | currency:'USD' }}
+</p>-->
+

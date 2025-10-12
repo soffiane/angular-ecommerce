@@ -3,17 +3,26 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
+import { ProductList } from './components/product-list/product-list';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ProductService } from './services/product';
+import { ProductCategoryMenu } from './components/product-category-menu/product-category-menu';
 
 @NgModule({
   declarations: [
-    App
+    App,
+    ProductList,
+    ProductCategoryMenu
   ],
   imports: [
+  
     BrowserModule,
     AppRoutingModule
   ],
   providers: [
-    provideBrowserGlobalErrorListeners()
+    provideBrowserGlobalErrorListeners(),
+    provideHttpClient(withInterceptorsFromDi()),
+    ProductService
   ],
   bootstrap: [App]
 })
