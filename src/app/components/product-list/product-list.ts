@@ -14,6 +14,7 @@ export class ProductList implements OnInit {
   products: Product[] = [];
   currentCategoryId: number = 1;
   currentCategoryName: string = "";
+  searchMode:boolean = false;
 
   constructor(private productService: ProductService, private activeRoute: ActivatedRoute) { }
 
@@ -28,7 +29,25 @@ export class ProductList implements OnInit {
    * Subscribe to the observable returned by getProductList()
    */
   listProducts() {
-    // Lire le categoryId de la route. 
+    //keyword est le paramètre de l'url et definit dans app-routing-module.ts
+    this.searchMode = this.activeRoute.snapshot.paramMap.has('keyword');
+    //recherche par mot clé
+    if (this.searchMode) {   
+      const keyword: string = this.activeRoute.snapshot.paramMap.get('keyword')!;
+      // now search for the products using keyword
+      this.productService.searchProducts(keyword).subscribe(
+        data => {
+          this.products = data;
+        }
+      );
+    } else {
+      this.handleListProducts();
+    }
+    
+  }
+
+  handleListProducts() {
+     // Lire le categoryId de la route. 
     const hasCategoryId: boolean = this.activeRoute.snapshot.paramMap.has('id');
     if (hasCategoryId) {
       // get the "id" param string. convert string to a number using the "+" symbol 
@@ -45,6 +64,6 @@ export class ProductList implements OnInit {
       data => {
         this.products = data;
       }
-    );  
+    ); 
   }
 }

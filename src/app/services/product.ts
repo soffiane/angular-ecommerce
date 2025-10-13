@@ -22,16 +22,26 @@ export class ProductService {
    * asynchronous events as collections.
    * @returns an observable of product array
    */
-  getProductList(theCategoryId: number) : Observable<Product[]> {
+  getProductList(theCategoryId: number): Observable<Product[]> {
     const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`;
-    return this.httpClient.get<GetResponseProduct>(searchUrl).pipe(
-      map (response => response._embedded.products)
+    return this.getProducts(searchUrl);
+  }
+
+
+  searchProducts(keyword: string): Observable<Product[]> {
+    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${keyword}`;
+    return this.getProducts(searchUrl)
+  }
+
+  getProductCategories(): Observable<ProductCategory[]> {
+    return this.httpClient.get<GetResponseCategories>(this.categoryUrl).pipe(
+      map(response => response._embedded.productCategory)
     );
   }
 
-  getProductCategories() : Observable<ProductCategory[]>{
-    return this.httpClient.get<GetResponseCategories>(this.categoryUrl).pipe(
-      map (response => response._embedded.productCategory)
+  private getProducts(searchUrl: string): Observable<Product[]> {
+    return this.httpClient.get<GetResponseProduct>(searchUrl).pipe(
+      map(response => response._embedded.products)
     );
   }
 }

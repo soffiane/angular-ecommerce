@@ -1,0 +1,11 @@
+<!-- on definit ici le code html du composant de recherche et on l'appelle dans app.html via <app-search>-->
+<form class="form-header">
+    <!--template reference variable : permet d'acceder à l'element, on appelle doSearch quand on clique sur Entrée
+								 on peut donner n'importe quel nom devant le # c'est juste une variable pour acceder au champ-->
+    <input #input type="text" (keyup.enter)="doSearch(input.value)" class="au-input au-input-xl"
+        placeholder="Search for products..." />
+    <!-- pareil mais avec le bouton Search -->
+    <button (click)="doSearch(input.value)" class="au-btn--submit">
+        Search
+    </button>
+</form>
