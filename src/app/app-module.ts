@@ -8,13 +8,15 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { ProductService } from './services/product';
 import { ProductCategoryMenu } from './components/product-category-menu/product-category-menu';
 import { Search } from './components/search/search';
+import { ProductDetails } from './components/product-details/product-details';
 
 @NgModule({
   declarations: [
     App,
     ProductList,
     ProductCategoryMenu,
-    Search
+    Search,
+    ProductDetails
   ],
   imports: [
   
