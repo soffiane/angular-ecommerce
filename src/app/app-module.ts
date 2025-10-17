@@ -9,6 +9,8 @@ import { ProductService } from './services/product';
 import { ProductCategoryMenu } from './components/product-category-menu/product-category-menu';
 import { Search } from './components/search/search';
 import { ProductDetails } from './components/product-details/product-details';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -19,9 +21,10 @@ import { ProductDetails } from './components/product-details/product-details';
     ProductDetails
   ],
   imports: [
-  
+    FormsModule,
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgbModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

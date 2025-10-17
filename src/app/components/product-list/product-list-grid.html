@@ -7,7 +7,7 @@
         <div *ngFor="let product of products" class="col-md-3">
           <div class="product-box">
             <a routerLink="/products/{{product.id}}">
-              <img src ={{product.imageUrl}} alt=" Product Image" class="img-responsive">
+              <img src={{product.imageUrl}} alt=" Product Image" class="img-responsive">
             </a>
             <a routerLink="/products/{{product.id}}">
               <h1>{{product.name}}</h1>
@@ -20,6 +20,38 @@
         <div *ngIf="products.length === 0" class="alert alert-warning col-md-12" role="alert">
           No products found.
         </div> <!-- end row -->
-      </div> <!-- end container fluid -->
-    </div>
+
+        <!-- pagination controls footer section -->
+        <div class="footer-pagination">
+          <div class="row">
+            <div class="col-md-6"> </div>
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-9" style="padding-left: 30%;">
+                  <!-- ngb-pagination component from ng-bootstrap -->
+                   <!-- maxSize limite le nombre de page affichée dans la pagination -->
+                    <!-- boundaryLinks permet d'ajouter les << et >> pour aller directement  à la premiere ou derniere page -->
+                  <ngb-pagination [collectionSize]="theTotalElements" [(page)]="thePageNumber" [pageSize]="thePageSize" [maxSize]= "5" [boundaryLinks]="true" (pageChange)="listProducts()"></ngb-pagination>
+                </div>
+              <div class="col-md-3 mt-2" style="text-align: right;">
+                <span class="mr-2">Page Size</span>
+                <!-- <select class="form-control" [(ngModel)]="thePageSize" (change)="listProducts()">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                </select> -->
+                <select #myPageSelect (change)="updatePageSize(myPageSelect.value)">
+                  <option selected="true">5</option>
+                  <option>10</option>
+                  <option>20</option>
+                  <option>50</option>
+                </select>
+            </div>
+          </div>
+        </div>
+      </div> <!-- end row pagination controls -->
+
+    </div> <!-- end container fluid -->
   </div>
+</div>

@@ -33,7 +33,4 @@ export class ProductDetails implements OnInit {
       } 
     );
   }
-
-  
-
 }
