@@ -29,17 +29,17 @@
 		<!-- MENU SIDEBAR-->
 		<aside class="menu-sidebar d-none d-lg-block">
 			<div class="logo">
-				<a href="home.html">
+				<a routerLink="/products">
 					<img src="assets/images/logo.png" alt="luv2shop" class="img-responsive">
 				</a>
 			</div>
+			<!--
 			<div class="menu-sidebar-content js-scrollbar1">
 				<nav class="navbar-sidebar">
-					
 					<ul class="list-unstyled navbar-list">
 						setting up router links : hardCoded pour le moment : on pourra le rendre dynamique grace aux infos disponibles dans l'API REST-->
 						 <!-- routerLinkActive est un style CSS a appliquer au lien quand on clique dessus-->
-						<li>
+						<!--<li>
 							<a routerLink="/category/1" routerLinkActive="active-link">Books</a>
 						</li>
 						<li>
@@ -54,7 +54,7 @@
 					</ul>
 				</nav>
 				</div>
-				-->
+			-->
 				<!-- on ajoute le composant menu que l'on genere dynamiquement -->	
 				<app-product-category-menu></app-product-category-menu>
 				
@@ -70,12 +70,9 @@
 						<div class="header-wrap">
 							<app-search></app-search>
 							<!-- on ajoute le composant search -->
-							<div class="cart-area d-n">
-								<a href="shopping-detail.html">
-									<div class="total">19.22 <span> 2</span> </div> <i class="fa fa-shopping-cart"
-										aria-hidden="true"></i>
-								</a>
-							</div>
+
+							<app-cart-status></app-cart-status>
+							<!-- on ajoute le composant cart-status -->
 						</div>
 						<div class="account-wrap"></div>
 					</div>

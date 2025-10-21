@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product';
 import { Product } from '../../model/product';
+import { CartService } from '../../services/cart-service';
+import { CartItem } from '../../model/cart-item';
 
 @Component({
   selector: 'app-product-details',
@@ -11,6 +13,7 @@ import { Product } from '../../model/product';
 })
 export class ProductDetails implements OnInit {
 
+  //! signifie que la variable sera initialisée plus tard
   product!: Product;
   
   ngOnInit(): void {
@@ -19,7 +22,7 @@ export class ProductDetails implements OnInit {
       });
   }
 
-  constructor(private productService: ProductService, private route: ActivatedRoute) { }
+  constructor(private productService: ProductService,private cartService: CartService, private route: ActivatedRoute) { }
 
   handleProductDetails() {
     // get the "id" param string. convert string to a number using the "+" symbol 
@@ -32,5 +35,11 @@ export class ProductDetails implements OnInit {
         this.product = data;
       } 
     );
+  }
+
+  addToCart(theProduct: Product) {
+    console.log(`Adding to cart: ${theProduct.name}, ${theProduct.unitPrice}`);
+    const theCartItem = new CartItem(theProduct);
+    this.cartService.addCartItem(theCartItem);
   }
 }

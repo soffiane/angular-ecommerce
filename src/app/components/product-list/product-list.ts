@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product';
 import { Product } from '../../model/product';
 import { ActivatedRoute } from '@angular/router';
+import { CartItem } from '../../model/cart-item';
+import { CartService } from '../../services/cart-service';
 
 @Component({
   selector: 'app-product-list',
@@ -23,7 +25,10 @@ export class ProductList implements OnInit {
   thePageSize: number = 10;
   theTotalElements: number = 0;
 
-  constructor(private productService: ProductService, private activeRoute: ActivatedRoute) { }
+  //cart
+  
+
+  constructor(private productService: ProductService, private cartService: CartService, private activeRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
     // Initial load of products
@@ -102,6 +107,13 @@ export class ProductList implements OnInit {
       this.thePageSize = data.page.size;
       this.theTotalElements = data.page.totalElements;
     };
+  }
+
+  addToCart(product: Product) {
+    const theCartItem = new CartItem(product);
+    console.log(`Adding to cart: ${theCartItem.name}, ${theCartItem.unitPrice}`);
+    //ajout de l'élément au service de gestion du panier
+    this.cartService.addCartItem(theCartItem);
   }
   /*this.productService.getProductList(this.currentCategoryId).subscribe(
     data => {

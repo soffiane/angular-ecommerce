@@ -11,6 +11,8 @@ import { Search } from './components/search/search';
 import { ProductDetails } from './components/product-details/product-details';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { CartStatus } from './components/cart-status/cart-status';
+import { CartDetail } from './components/cart-detail/cart-detail';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,9 @@ import { FormsModule } from '@angular/forms';
     ProductList,
     ProductCategoryMenu,
     Search,
-    ProductDetails
+    ProductDetails,
+    CartStatus,
+    CartDetail
   ],
   imports: [
     FormsModule,
