@@ -3,12 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { ProductList } from './components/product-list/product-list';
 import { ProductDetails } from './components/product-details/product-details';
 import { CartDetail } from './components/cart-detail/cart-detail';
+import { Checkout } from './components/checkout/checkout';
 
 const routes: Routes = [
   {path: 'search/:keyword', component: ProductList},
   {path: 'products/:id', component: ProductDetails},
   {path: 'category/:id/:name', component: ProductList},
   {path: 'cart-details', component: CartDetail},
+  {path: 'checkout', component: Checkout},
   {path: 'category', component: ProductList},
   {path: 'products', component: ProductList},
   {path: '', redirectTo: '/products', pathMatch: 'full'},

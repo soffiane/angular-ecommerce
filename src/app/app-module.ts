@@ -10,9 +10,10 @@ import { ProductCategoryMenu } from './components/product-category-menu/product-
 import { Search } from './components/search/search';
 import { ProductDetails } from './components/product-details/product-details';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CartStatus } from './components/cart-status/cart-status';
 import { CartDetail } from './components/cart-detail/cart-detail';
+import { Checkout } from './components/checkout/checkout';
 
 @NgModule({
   declarations: [
@@ -22,13 +23,15 @@ import { CartDetail } from './components/cart-detail/cart-detail';
     Search,
     ProductDetails,
     CartStatus,
-    CartDetail
+    CartDetail,
+    Checkout
   ],
   imports: [
     FormsModule,
     BrowserModule,
     AppRoutingModule,
-    NgbModule
+    NgbModule,
+    ReactiveFormsModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
