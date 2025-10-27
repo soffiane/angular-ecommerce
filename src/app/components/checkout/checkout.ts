@@ -110,6 +110,7 @@ export class Checkout implements OnInit {
     } else {
       //sinon on reset le formulaire de l'adresse de facturation
       this.checkoutFormGroup.controls['billingAddress'].reset();
+      this.billingAddressStates = [];
     }
   }
   getStates(formGroupName: string) {
