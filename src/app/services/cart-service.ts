@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CartItem } from '../model/cart-item';
 import { Subject } from 'rxjs/internal/Subject';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,9 @@ export class CartService {
 
   cartItems: CartItem[] = [];
   // Subject observables to publish cart changes to all the subscribers 
-  totalQuantity: Subject<number> = new Subject<number>();
-  totalPrice: Subject<number> =  new Subject<number>();
+  //ReplaySubject permet de stocker une valeur et de la renvoyer aux nouveaux abonnés
+  totalQuantity: Subject<number> = /*new Subject<number>();*/ new ReplaySubject<number>(0);
+  totalPrice: Subject<number> =  /*new Subject<number>();*/ new BehaviorSubject<number>(0);
 
   constructor() {}
 
