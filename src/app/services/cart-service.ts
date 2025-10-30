@@ -7,12 +7,13 @@ import { BehaviorSubject, ReplaySubject } from 'rxjs';
   providedIn: 'root'
 })
 export class CartService {
-
+ 
   cartItems: CartItem[] = [];
   // Subject observables to publish cart changes to all the subscribers 
   //ReplaySubject permet de stocker une valeur et de la renvoyer aux nouveaux abonnés
   totalQuantity: Subject<number> = /*new Subject<number>();*/ new ReplaySubject<number>(0);
   totalPrice: Subject<number> =  /*new Subject<number>();*/ new BehaviorSubject<number>(0);
+  toto: Record<string, number> = {};
 
   constructor() {}
 
@@ -81,6 +82,11 @@ export class CartService {
       this.cartItems.splice(itemIndex, 1);
       this.computeCartTotals();
     }
+  }
+
+   resetCart() {
+    this.cartItems = [];
+    this.computeCartTotals();
   }
   
 }

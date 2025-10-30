@@ -5,6 +5,11 @@ import { Country } from '../../model/country';
 import { State } from '../../model/state';
 import { CustomValidators } from '../../model/custom-validators';
 import { CartService } from '../../services/cart-service';
+import { Router } from '@angular/router';
+import { Order } from '../../model/order';
+import { OrderItem } from '../../model/order-item';
+import { Purchase } from '../../model/purchase';
+import { CheckoutService } from '../../services/checkout';
 
 @Component({
   selector: 'app-checkout',
@@ -29,7 +34,7 @@ export class Checkout implements OnInit {
   billingAddressStates: State[] = [];
 
   //formBuilder est un service qui aide à créer des formGroup et des formControl
-  constructor(private formBuilder: FormBuilder, private creditCardDate: CreditCardDate, private cartService: CartService) { }
+  constructor(private formBuilder: FormBuilder, private creditCardDate: CreditCardDate, private cartService: CartService, private checkoutService: CheckoutService, private route: Router) { }
 
   ngOnInit(): void {
     //on definit les formulaire avec les champs necessaires avec les champs vides par defaut
@@ -42,7 +47,7 @@ export class Checkout implements OnInit {
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
-        lastName: ['',[Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
+        lastName: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
         email: ['', [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]]
       }),
       shippingAddress: this.formBuilder.group({
@@ -54,7 +59,7 @@ export class Checkout implements OnInit {
       }),
       billingAddress: this.formBuilder.group({
         street: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
-        city: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]], 
+        city: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
         state: ['', Validators.required],
         country: ['', Validators.required],
         zipCode: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]]
@@ -84,7 +89,7 @@ export class Checkout implements OnInit {
     });
 
     this.reviewCartDetails();
-  } 
+  }
   reviewCartDetails() {
     this.cartService.totalQuantity.subscribe(totalQuantity => this.totalQuantity = totalQuantity);
     this.cartService.totalPrice.subscribe(totalPrice => this.totalPrice = totalPrice);
@@ -92,7 +97,7 @@ export class Checkout implements OnInit {
 
   //custom getters for form fields to access them easily in the HTML template
   get firstName() { return this.checkoutFormGroup.get('customer.firstName'); }
-  get lastName() { return this.checkoutFormGroup.get('customer.lastName'); }  
+  get lastName() { return this.checkoutFormGroup.get('customer.lastName'); }
   get email() { return this.checkoutFormGroup.get('customer.email'); }
 
   // Shipping Address
@@ -125,7 +130,7 @@ export class Checkout implements OnInit {
     //si année en cours alors on commence par le mois en cours
     if (selectedYear === currentYear) {
       startMonth = new Date().getMonth() + 1;
-    //sinon on commence par le mois 1
+      //sinon on commence par le mois 1
     } else {
       startMonth = 1;
     }
@@ -133,15 +138,59 @@ export class Checkout implements OnInit {
     this.creditCardDate.getCreditCardExpiryMonths(startMonth).subscribe(months => {
       this.createCreditCardMonths = months;
     });
-}
+  }
 
   onSubmit() {
     console.log("Handling the submit button");
-    if(this.checkoutFormGroup.invalid) {
+    if (this.checkoutFormGroup.invalid) {
       //touching all the fields to trigger the validation messages
       this.checkoutFormGroup.markAllAsTouched();
+      return;
+    } else {
+      //si le formulaire est valide on passe à la suite (traitement du paiement)
+      //setup order
+      let order = new Order(this.totalPrice, this.totalQuantity);
+      //get cart items
+      const cartItems = this.cartService.cartItems;
+      //create orderitem from caritems
+      let orderItems: OrderItem[] = cartItems.map(tempCartItem => new OrderItem(tempCartItem));
+      //setup purchase and populate purchase - customer, shipping address, billing address, order and order items
+      let purchase = new Purchase();
+      //controls permet d'accéder aux formGroup enfants
+      purchase.shippingAddress = this.checkoutFormGroup.controls['shippingAddress'].value;
+      //on doit convertir les objets state et country en string (leur nom) avant de les envoyer au backend
+      const shippingState: State = JSON.parse(JSON.stringify(purchase.shippingAddress.state));
+      const shippingCountry: Country = JSON.parse(JSON.stringify(purchase.shippingAddress.country));
+      purchase.shippingAddress.state = shippingState.name;
+      purchase.shippingAddress.country = shippingCountry.name;
+
+      purchase.billingAddress = this.checkoutFormGroup.controls['billingAddress'].value;
+      const billingState: State = JSON.parse(JSON.stringify(purchase.billingAddress.state));
+      const billingCountry: Country = JSON.parse(JSON.stringify(purchase.billingAddress.country));
+      purchase.billingAddress.state = billingState.name;
+      purchase.billingAddress.country = billingCountry.name;
+
+      purchase.customer = this.checkoutFormGroup.controls['customer'].value;
+      purchase.order = order;
+      purchase.orderItems = orderItems;
+
+      //call REST API via the checkout service
+      this.checkoutService.placeOrder(purchase).subscribe({
+        //next est la fonction qui sera appelée en cas de succès
+        next: response => {
+          alert(`Votre commande a été reçue.\nNuméro de commande : ${response.orderTrackingNumber}`);
+          //reset cart
+          this.cartService.resetCart();
+          //reset form
+          this.checkoutFormGroup.reset();
+          this.route.navigateByUrl('/products');
+        },
+        //error est la fonction qui sera appelée en cas d'erreur
+        error: err => {
+          alert(`Il y a eu une erreur : ${err.message}`);
+        }
+      });
     }
-    console.log(this.checkoutFormGroup.get('customer')?.value);
   }
 
   copyShippingAddressToBillingAddress(event: any) {
@@ -149,8 +198,8 @@ export class Checkout implements OnInit {
     if (event.target.checked) {
       this.checkoutFormGroup.controls['billingAddress']
         .setValue(this.checkoutFormGroup.controls['shippingAddress'].value);
-        //bug : les états ne sont pas copiés automatiquement
-        this.billingAddressStates = this.shippingAddressStates;
+      //bug : les états ne sont pas copiés automatiquement
+      this.billingAddressStates = this.shippingAddressStates;
     } else {
       //sinon on reset le formulaire de l'adresse de facturation
       this.checkoutFormGroup.controls['billingAddress'].reset();
@@ -161,7 +210,7 @@ export class Checkout implements OnInit {
     const theFormGroup = this.checkoutFormGroup.get(formGroupName);
     const theCountryCode = theFormGroup?.value.country.code;
     this.creditCardDate.getStates(theCountryCode).subscribe(states => {
-      if(formGroupName === 'shippingAddress') {
+      if (formGroupName === 'shippingAddress') {
         this.shippingAddressStates = states;
       } else {
         this.billingAddressStates = states;
@@ -171,6 +220,6 @@ export class Checkout implements OnInit {
       }
     });
 
-    
+
   }
 }
