@@ -18,7 +18,9 @@ export class CartDetail implements OnInit {
    this.loadCartItems();
   }
 
-  constructor(private cartService: CartService) { }
+  constructor(private cartService: CartService) { 
+    
+  }
 
 
   loadCartItems() {
