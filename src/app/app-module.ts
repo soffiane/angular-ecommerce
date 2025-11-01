@@ -19,6 +19,7 @@ import { auth0Config } from './config/auth0-config';
 import { AuthInterceptorService } from './services/auth-interceptor';
 import { LoginStatus } from './components/login-status/login-status';
 import { Signup } from './components/signup/signup';
+import { MembersPage } from './components/members-page/members-page';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { Signup } from './components/signup/signup';
     CartDetail,
     Checkout,
     LoginStatus,
-    Signup
+    Signup,
+    MembersPage
   ],
   imports: [
     FormsModule,

@@ -5,6 +5,8 @@ import { ProductDetails } from './components/product-details/product-details';
 import { CartDetail } from './components/cart-detail/cart-detail';
 import { Checkout } from './components/checkout/checkout';
 import { Login } from './components/login/login';
+import { AuthGuard } from '@auth0/auth0-angular';
+import { MembersPage } from './components/members-page/members-page';
 
 const routes: Routes = [
   {path: 'search/:keyword', component: ProductList},
@@ -14,6 +16,7 @@ const routes: Routes = [
   {path: 'checkout', component: Checkout},
   {path: 'category', component: ProductList},
   {path: 'products', component: ProductList},
+  {path: 'members', component: MembersPage, canActivate: [AuthGuard], data: { authGuardPipe: () => Login}},
   {path: '', redirectTo: '/products', pathMatch: 'full'},
   {path: '**', redirectTo: '/products', pathMatch: 'full'},
 ];

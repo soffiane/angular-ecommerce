@@ -1,0 +1,19 @@
+<div class="main-content">
+    <!-- Use Angular @if and Bootstrap utilities instead of the deprecated `align` attribute -->
+    @if(isAuthenticated) {
+    <div class="alert alert-warning col-md-12 text-center">
+        <h2>Members Area</h2>
+        <p>
+            Welcome to the exclusive members area! Here you can find special content
+            and offers available only to our registered members.
+        </p>
+    </div>
+    }
+    @if(!isAuthenticated) {
+    <div class="alert alert-danger col-md-12 text-center">
+        <h2>Access Denied</h2>
+        <p>You must be logged in to access the members area. Please log in to continue.</p>
+        <button class="btn btn-primary btn-block" (click)="loginWithPopup()">Log in</button>
+    </div>
+    }
+</div>
