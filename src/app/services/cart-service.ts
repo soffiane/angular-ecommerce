@@ -16,7 +16,7 @@ export class CartService {
   toto: Record<string, number> = {};
 
   constructor() {
-    let data = JSON.parse(localStorage.getItem('cartItems')!);
+    let data = JSON.parse(sessionStorage.getItem('cartItems')!);
     if(data != null){
       this.cartItems = data;
     }
@@ -98,7 +98,7 @@ export class CartService {
   }
 
   persistCartItems() {
-    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+    sessionStorage.setItem('cartItems', JSON.stringify(this.cartItems));
   }
   
 }

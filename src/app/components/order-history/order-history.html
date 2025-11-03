@@ -1,0 +1,31 @@
+<h3>Your orders</h3>
+<div class="main-content">
+<div *ngIf="orderHistoryList.length > 0">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th width="20%">Order Tracking Number</th>
+                <th width="10%">Total price</th>
+                <th width="10%">Total Amount</th>
+                <th width="10%" style="cursor: pointer;" (click)="toggleDateSort()">
+                    Date
+                    <span *ngIf="sortDirection === 'desc'">▼</span>
+                    <span *ngIf="sortDirection === 'asc'">▲</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let order of orderHistoryList">
+                <td>{{ order.orderTrackingNumber }}</td>
+                <td>{{ order.totalPrice | currency: 'USD' }}</td>
+                <td>{{ order.totalQuantity }}</td>
+
+                <td>{{ order.dateCreated | date:'medium' }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div *ngIf="orderHistoryList.length === 0">
+    <h4>You have no orders.</h4>
+</div>
+</div>

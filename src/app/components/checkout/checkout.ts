@@ -44,11 +44,12 @@ export class Checkout implements OnInit {
     //2. ['valeur par defaut', validateurs synchrones, validateurs asynchrones]
     //FormControl permet de gérer la valeur et l'état de validation d'un champ de formulaire individuel
     //Validators.email ne valide pas correctement les emails (le domaine), on utilise donc Validators.pattern avec une regex
+    const theEmail = JSON.parse(sessionStorage.getItem('userEmail')!);
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
         lastName: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
-        email: ['', [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]]
+        email: [theEmail, [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]]
       }),
       shippingAddress: this.formBuilder.group({
         street: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],

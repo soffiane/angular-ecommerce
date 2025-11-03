@@ -20,6 +20,7 @@ import { AuthInterceptorService } from './services/auth-interceptor';
 import { LoginStatus } from './components/login-status/login-status';
 import { Signup } from './components/signup/signup';
 import { MembersPage } from './components/members-page/members-page';
+import { OrderHistoryComponent } from './components/order-history/order-history';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { MembersPage } from './components/members-page/members-page';
     Checkout,
     LoginStatus,
     Signup,
-    MembersPage
+    MembersPage,
+    OrderHistoryComponent
   ],
   imports: [
     FormsModule,
