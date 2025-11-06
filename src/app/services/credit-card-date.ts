@@ -3,14 +3,15 @@ import { Injectable } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { Country } from '../model/country';
 import { State } from '../model/state';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CreditCardDate {
 
-  private contriesUrl = 'http://localhost:8080/api/countries';
-  private statesUrl = 'http://localhost:8080/api/states';
+  private contriesUrl = environment.luv2shopApiUrl+'/countries';
+  private statesUrl =  environment.luv2shopApiUrl+'/states';
 
   constructor(private httpClient: HttpClient) { }
 

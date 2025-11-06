@@ -2,6 +2,7 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/c
 import { Injectable } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { from, lastValueFrom, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class AuthInterceptorService implements HttpInterceptor {
 
   private async handleAccess(request: HttpRequest<any>, next: HttpHandler): Promise<HttpEvent<any>> {
     //on va generer un token pour ce endpoint securisé
-    const securedEndpoints = ['http://localhost:8080/api/orders'];
+    const securedEndpoints = [environment.luv2shopApiUrl+'/orders'];
 
     if (securedEndpoints.some((url) => request.urlWithParams.includes(url))) {
       //on genere le token et on l'ajoute dans le header

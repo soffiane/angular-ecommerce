@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Product } from '../model/product';
 import { ProductCategory } from '../model/product-category';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = 'http://localhost:8080/api/products';
-  private categoryUrl = 'http://localhost:8080/api/product-category';
+  private baseUrl =  environment.luv2shopApiUrl+'/products';
+  private categoryUrl =  environment.luv2shopApiUrl+'/product-category';
 
   constructor(private httpClient: HttpClient) { }
 
@@ -48,6 +49,7 @@ export class ProductService {
   }
 
   getProductCategories(): Observable<ProductCategory[]> {
+    console.log('Environment URL: ', environment.luv2shopApiUrl);
     return this.httpClient.get<GetResponseCategories>(this.categoryUrl).pipe(
       map(response => response._embedded.productCategory)
     );
