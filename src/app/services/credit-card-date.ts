@@ -28,27 +28,6 @@ export class CreditCardDate {
     );
   }
 
-  getCreditCardExpiryMonths(startMonth: number): Observable<number[]> {
-    let months: number[] = [];
-    //les 12 mois de l'année
-    for (let month = startMonth; month <= 12; month++) {
-      months.push(month);
-    }
-    //on renvoie un observable de la liste des mois
-    return of(months);
-  }
-
-  getCreditCardExpiryYears(): Observable<number[]> {
-    let years: number[] = [];
-    const startYear: number = new Date().getFullYear();
-    const endYear: number = startYear + 10;
-    //l'année en cours + les 10 années suivantes
-    for (let year = startYear; year <= endYear; year++) {
-      years.push(year);
-    }
-    return of(years);
-  }
-
 }
 
 interface GetResponseCountries {

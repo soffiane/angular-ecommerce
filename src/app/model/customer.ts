@@ -1,7 +1,7 @@
 export class Customer {
-    private firstName: string;
-    private lastName: string
-    private email: string;
+    public firstName: string;
+    public lastName: string
+    public email: string;
 
     constructor(firstName: string, lastName: string, email: string) {
         this.firstName = firstName;

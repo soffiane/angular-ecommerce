@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Form, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreditCardDate } from '../../services/credit-card-date';
 import { Country } from '../../model/country';
 import { State } from '../../model/state';
@@ -10,6 +10,8 @@ import { Order } from '../../model/order';
 import { OrderItem } from '../../model/order-item';
 import { Purchase } from '../../model/purchase';
 import { CheckoutService } from '../../services/checkout';
+import { environment } from '../../../environments/environment.development';
+import { PaymentInfo } from '../../model/payment-info';
 
 @Component({
   selector: 'app-checkout',
@@ -25,18 +27,24 @@ export class Checkout implements OnInit {
   totalPrice: number = 0;
   totalQuantity: number = 0;
 
-  createCreditCardMonths: number[] = [];
-  createCreditCardYears: number[] = [];
-
   countries: Country[] = [];
 
   shippingAddressStates: State[] = [];
   billingAddressStates: State[] = [];
 
+  stripe = Stripe(environment.stripePublishableKey);
+  paymentInfo: PaymentInfo = new PaymentInfo();
+  cardElement: any;
+  displayError: any = '';
+
+  isDisabled: boolean = false;
+
   //formBuilder est un service qui aide à créer des formGroup et des formControl
   constructor(private formBuilder: FormBuilder, private creditCardDate: CreditCardDate, private cartService: CartService, private checkoutService: CheckoutService, private route: Router) { }
 
   ngOnInit(): void {
+    //setup Stripe payment form
+    this.setupStripePaymentForm();
     //on definit les formulaire avec les champs necessaires avec les champs vides par defaut
     //on va definir plusieurs formulaire dans le formGroup principal checkoutFormGroup
     //formControl peut etre défini de deux manières :
@@ -66,23 +74,7 @@ export class Checkout implements OnInit {
         zipCode: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]]
       }),
       creditCard: this.formBuilder.group({
-        cardType: ['', Validators.required],
-        nameOnCard: ['', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]],
-        cardNumber: ['', [Validators.required, Validators.pattern('[0-9]{16}')]],
-        securityCode: ['', [Validators.required, Validators.pattern('[0-9]{3}')]],
-        expirationMonth: [''],
-        expirationYear: ['']
       })
-    });
-    //on remplit les listes des mois et des années pour la carte de credit
-    //on rajoute 1 car les mois commencent à 0 en javascript
-    const startMonth: number = new Date().getMonth() + 1;
-    //on subscrit aux observables pour recuperer les listes
-    this.creditCardDate.getCreditCardExpiryMonths(startMonth).subscribe(months => {
-      this.createCreditCardMonths = months;
-    });
-    this.creditCardDate.getCreditCardExpiryYears().subscribe(years => {
-      this.createCreditCardYears = years;
     });
     //populate countries
     this.creditCardDate.getCountries().subscribe(countries => {
@@ -90,6 +82,25 @@ export class Checkout implements OnInit {
     });
 
     this.reviewCartDetails();
+  }
+
+  setupStripePaymentForm() {
+    //get a handle to stripe element
+    var elements = this.stripe.elements();
+    //create a card element... and hide the zipcode field
+    this.cardElement = elements.create('card', { hidePostalCode: true });
+    //add an instance of card UI component into the 'card-element' div
+    this.cardElement.mount('#card-element');//<div id ="card-element"></div> in checkout.html
+    //add event binding for the 'change' event on the card element
+    this.cardElement.on('change', (event: any) => {
+      //get a handle to the display error div
+      this.displayError = document.getElementById('card-errors');
+      if (event.complete) {
+        this.displayError.textContent = '';
+      } else if (event.error) {
+        this.displayError.textContent = event.error.message;
+      }
+    }); 
   }
   reviewCartDetails() {
     this.cartService.totalQuantity.subscribe(totalQuantity => this.totalQuantity = totalQuantity);
@@ -123,23 +134,6 @@ export class Checkout implements OnInit {
   get expirationMonth() { return this.checkoutFormGroup.get('creditCard.expirationMonth'); }
   get expirationYear() { return this.checkoutFormGroup.get('creditCard.expirationYear'); }
 
-  handleMonthsAndYears() {
-    //on lit l'année selectionnée dans le formulaire
-    const selectedYear: number = Number(this.checkoutFormGroup.get('creditCard')?.value.expirationYear);
-    const currentYear: number = new Date().getFullYear();
-    let startMonth: number;
-    //si année en cours alors on commence par le mois en cours
-    if (selectedYear === currentYear) {
-      startMonth = new Date().getMonth() + 1;
-      //sinon on commence par le mois 1
-    } else {
-      startMonth = 1;
-    }
-    //on remplit la liste des mois en fonction de l'année selectionnée
-    this.creditCardDate.getCreditCardExpiryMonths(startMonth).subscribe(months => {
-      this.createCreditCardMonths = months;
-    });
-  }
 
   onSubmit() {
     console.log("Handling the submit button");
@@ -175,22 +169,62 @@ export class Checkout implements OnInit {
       purchase.order = order;
       purchase.orderItems = orderItems;
 
-      //call REST API via the checkout service
-      this.checkoutService.placeOrder(purchase).subscribe({
-        //next est la fonction qui sera appelée en cas de succès
-        next: response => {
-          alert(`Votre commande a été reçue.\nNuméro de commande : ${response.orderTrackingNumber}`);
-          //reset cart
-          this.cartService.resetCart();
-          //reset form
-          this.checkoutFormGroup.reset();
-          this.route.navigateByUrl('/products');
-        },
-        //error est la fonction qui sera appelée en cas d'erreur
-        error: err => {
-          alert(`Il y a eu une erreur : ${err.message}`);
-        }
-      });
+      //en Javascript les nombres à virgule flottante ne sont pas précis à 100%
+      //pour éviter les erreurs d'arrondis on convertit le montant en centimes
+      //number represente un float,il n'y a pas de type int en javascript
+      //sans le math.round on peut avoir des erreurs du type 5000.00000001 ou 4999.9999999
+      this.paymentInfo.amount = Math.round(this.totalPrice * 100);
+      this.paymentInfo.currency = "USD";
+      this.paymentInfo.receiptEmail = purchase.customer.email;
+      this.isDisabled = true;
+
+      //if valid form then
+      //- create payment intent
+      // - confirm card payment
+      // - place order
+      this.checkoutService.createPaymentIntent(this.paymentInfo).subscribe(
+        (paymentIntentResponse: any) => { 
+          this.stripe.confirmCardPayment(paymentIntentResponse.client_secret, {
+            payment_method: {
+              card: this.cardElement,
+              billing_details: {
+                email: purchase.customer.email,
+                name: `${purchase.customer.firstName} ${purchase.customer.lastName}`,
+                address : {
+                  line1: purchase.billingAddress.street,
+                  city: purchase.billingAddress.city,
+                  state: purchase.billingAddress.state,
+                  postal_code: purchase.billingAddress.zipCode,
+                  country: billingCountry.code
+                }
+              }
+            } , 
+          },{handleActions: false}).then((result: any) => {
+            if (result.error) {
+              //payment failed
+              alert(`There was an error: ${result.error.message}`);
+              this.isDisabled = false;
+            } else {
+              //payment succeeded
+              this.checkoutService.placeOrder(purchase).subscribe({
+                //next est la fonction qui sera appelée en cas de succès
+                next: (response: any) => {  
+                  alert(`Your order has been received.\nOrder tracking number: ${response.orderTrackingNumber}`);
+                  //reset cart
+                  this.cartService.resetCart();
+                  //redirect to products page
+                  this.route.navigateByUrl("/products");
+                  this.isDisabled = false;
+                },
+                error: (err: any) => {
+                  alert(`There was an error: ${err.message}`);  
+                  this.isDisabled = false;
+                } 
+              })
+            }
+          });
+        }    
+      );    
     }
   }
 
